@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: legal_consulting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d legal_consulting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      LEGAL_DB_DSN: ${LEGAL_DB_DSN}
+      SECRET_KEY: ${SECRET_KEY}
+      FRONTEND_URL: ${FRONTEND_URL}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD}
+      LEGAL_AI_API_KEY: ${LEGAL_AI_API_KEY}
+      LEGAL_AI_BASE_URL: ${LEGAL_AI_BASE_URL}
+      LEGAL_AI_MODEL: ${LEGAL_AI_MODEL}
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

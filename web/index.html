@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexConsult AI</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient-layer"></div>
+
+    <section class="auth-shell" id="authView">
+      <div class="auth-showcase">
+        <div class="brand-badge">L</div>
+        <p class="eyebrow">Legal AI Workspace</p>
+        <h1>LexConsult AI</h1>
+        <p class="lead-copy">
+          Локальный юридический AI-сервис с историей чатов, аккаунтами пользователей
+          и поиском похожих дел по твоей базе.
+        </p>
+
+        <div class="showcase-grid">
+          <article class="showcase-card">
+            <span class="showcase-kicker">Авторизация</span>
+            <strong>Email, пароль и регистрация с капчей</strong>
+            <p>У каждого пользователя свои сессии и свои отдельные чаты.</p>
+          </article>
+          <article class="showcase-card">
+            <span class="showcase-kicker">История</span>
+            <strong>Сохранение диалогов в PostgreSQL</strong>
+            <p>Чаты хранятся в базе и открываются как в полноценном SaaS-продукте.</p>
+          </article>
+          <article class="showcase-card">
+            <span class="showcase-kicker">Консультация</span>
+            <strong>AI + похожие судебные дела</strong>
+            <p>Система вызывает твою `ai.py` и возвращает уже оформленный разбор.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="auth-panel">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="loginTab" type="button">Вход</button>
+          <button class="auth-tab" id="registerTab" type="button">Регистрация</button>
+        </div>
+
+        <div class="auth-status hidden" id="authStatus"></div>
+
+        <form class="auth-form" id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" name="email" type="email" autocomplete="username" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Пароль</label>
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+          </div>
+          <button class="primary-cta" id="loginButton" type="submit">Войти</button>
+        </form>
+
+        <form class="auth-form hidden" id="registerForm">
+          <div class="form-group">
+            <label for="registerEmail">Email</label>
+            <input id="registerEmail" name="email" type="email" autocomplete="username" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Пароль</label>
+            <input id="registerPassword" name="password" type="password" autocomplete="new-password" required>
+          </div>
+          <div class="form-group">
+            <label for="registerPasswordRepeat">Повтори пароль</label>
+            <input id="registerPasswordRepeat" name="password_repeat" type="password" autocomplete="new-password" required>
+          </div>
+          <div class="captcha-box">
+            <div>
+              <span class="captcha-label">Капча</span>
+              <p class="captcha-question" id="captchaQuestion">Загрузка...</p>
+            </div>
+            <button class="ghost-cta" id="refreshCaptchaButton" type="button">Обновить</button>
+          </div>
+          <div class="form-group">
+            <label for="captchaAnswer">Ответ на капчу</label>
+            <input id="captchaAnswer" name="captcha_answer" type="text" inputmode="numeric" required>
+          </div>
+          <button class="primary-cta" id="registerButton" type="submit">Создать аккаунт</button>
+        </form>
+      </div>
+    </section>
+
+    <div class="app-layout hidden" id="appView">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div class="brand-icon">L</div>
+            <div>
+              <p class="eyebrow">LexConsult AI</p>
+              <h2>Юридический workspace</h2>
+            </div>
+          </div>
+
+          <div class="sidebar-user-card">
+            <div>
+              <p class="eyebrow">Аккаунт</p>
+              <p class="user-email" id="userEmail">user@example.com</p>
+            </div>
+            <button class="ghost-icon-button" id="logoutButton" type="button">Выйти</button>
+          </div>
+
+          <button class="new-chat-button" id="newChatButton" type="button">
+            <span class="plus-mark">+</span>
+            <span>Новый чат</span>
+          </button>
+        </div>
+
+        <section class="sidebar-section">
+          <div class="sidebar-section-head">
+            <p class="eyebrow">История</p>
+            <span class="sidebar-count" id="historyCount">0</span>
+          </div>
+          <div class="chat-history" id="chatHistory"></div>
+        </section>
+
+        <section class="sidebar-section">
+          <p class="eyebrow">Возможности</p>
+          <div class="feature-list">
+            <article class="feature-card">
+              <strong>Сессии пользователей</strong>
+              <p>Регистрация и авторизация через email и пароль.</p>
+            </article>
+            <article class="feature-card">
+              <strong>Чаты в PostgreSQL</strong>
+              <p>История закреплена за аккаунтом и не хранится больше в json.</p>
+            </article>
+            <article class="feature-card">
+              <strong>Переименование и удаление</strong>
+              <p>Диалоги можно вести как в реальном продукте, а не как в демке.</p>
+            </article>
+          </div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="topbar-main">
+            <button class="ghost-icon-button mobile-only" id="sidebarToggle" type="button">Меню</button>
+            <div>
+              <p class="eyebrow">AI legal assistant</p>
+              <div class="title-row">
+                <h3 id="chatTitle">Новый чат</h3>
+                <span class="model-pill">private local mode</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="presence-pill">
+            <span class="presence-dot"></span>
+            <span id="statusText">Готов к работе</span>
+          </div>
+        </header>
+
+        <div class="workspace-grid">
+          <section class="chat-column">
+            <div class="welcome-panel" id="welcomePanel">
+              <div class="welcome-glow"></div>
+              <p class="eyebrow">Новый разговор</p>
+              <h4>Опиши свою ситуацию простым языком, а система соберёт консультацию и похожую практику</h4>
+              <p class="welcome-text">
+                Интерфейс вдохновлён современными AI-продуктами: отдельные аккаунты,
+                история чатов, быстрые сценарии, переименование диалогов и тёмная продовая визуальная подача.
+              </p>
+              <div class="starter-grid">
+                <button class="starter-card" type="button" data-prompt="Оспариваю договор купли-продажи квартиры, потому что продавец мог скрыть ограничения и права третьих лиц. Хочу понять риски и похожие дела.">
+                  <span>Недвижимость</span>
+                  <strong>Оспаривание сделки</strong>
+                </button>
+                <button class="starter-card" type="button" data-prompt="Меня пытаются взыскать долг по расписке, но я сомневаюсь в действительности документа и подписи. Нужен разбор судебной практики.">
+                  <span>Долги</span>
+                  <strong>Расписка и займ</strong>
+                </button>
+                <button class="starter-card" type="button" data-prompt="После перевода денег за услугу исполнитель пропал. Хочу понять, как суды смотрят на такие споры и есть ли перспектива взыскания.">
+                  <span>Деньги</span>
+                  <strong>Возврат средств</strong>
+                </button>
+                <button class="starter-card" type="button" data-prompt="Меня обвиняют в мошенничестве после сделки, которую я считаю гражданско-правовой. Нужно понять риски и похожую практику.">
+                  <span>Уголовный риск</span>
+                  <strong>Граница со 159 УК РФ</strong>
+                </button>
+              </div>
+            </div>
+
+            <div class="conversation" id="conversation"></div>
+
+            <div class="typing-row hidden" id="typingState">
+              <div class="message-avatar">AI</div>
+              <div class="typing-card">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <div class="composer-shell">
+              <form class="composer" id="consultForm">
+                <textarea
+                  id="problemInput"
+                  name="problem"
+                  rows="1"
+                  placeholder="Опиши проблему, даты, участников спора и что именно хочешь узнать..."
+                  required
+                ></textarea>
+
+                <div class="composer-bottom">
+                  <div class="composer-left">
+                    <button class="ghost-cta" id="fillExampleButton" type="button">Пример</button>
+                    <span class="hint-text">Enter отправляет, Shift + Enter переносит строку</span>
+                  </div>
+                  <button class="primary-cta" id="submitButton" type="submit">Отправить</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <aside class="details-panel">
+            <section class="details-card">
+              <p class="eyebrow">Контекст ответа</p>
+              <h4>Разбор последнего ответа</h4>
+              <p class="details-copy">
+                Здесь показываются ключевые слова, число найденных дел и карточки похожей практики.
+              </p>
+            </section>
+
+            <section class="details-card">
+              <div class="details-head">
+                <p class="eyebrow">Ключевые слова</p>
+                <span class="details-pill" id="keywordsCount">0</span>
+              </div>
+              <div class="keyword-list" id="keywords"></div>
+            </section>
+
+            <section class="details-card">
+              <div class="details-head">
+                <p class="eyebrow">Найдено дел</p>
+                <span class="metric-number" id="casesCount">0</span>
+              </div>
+              <div class="cases-list" id="casesList"></div>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

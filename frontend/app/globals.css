@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 42 33% 97%;
+  --foreground: 220 28% 12%;
+  --muted: 32 26% 92%;
+  --muted-foreground: 215 12% 42%;
+  --surface: 0 0% 100%;
+  --surface-elevated: 36 38% 98%;
+  --border: 220 16% 86%;
+  --input: 220 17% 83%;
+  --ring: 204 82% 54%;
+  --accent: 202 78% 46%;
+  --accent-foreground: 0 0% 100%;
+  --accent-soft: 201 78% 94%;
+  --success: 152 65% 36%;
+  --warning: 34 90% 52%;
+  --danger: 0 72% 55%;
+}
+
+.dark {
+  --background: 222 34% 8%;
+  --foreground: 210 22% 95%;
+  --muted: 223 23% 14%;
+  --muted-foreground: 214 15% 66%;
+  --surface: 222 29% 11%;
+  --surface-elevated: 220 27% 15%;
+  --border: 220 18% 22%;
+  --input: 219 16% 25%;
+  --ring: 197 90% 58%;
+  --accent: 193 91% 57%;
+  --accent-foreground: 220 46% 10%;
+  --accent-soft: 193 88% 17%;
+  --success: 153 61% 46%;
+  --warning: 35 92% 58%;
+  --danger: 0 84% 63%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-background font-sans text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top left, hsl(var(--accent) / 0.12), transparent 28%),
+      radial-gradient(circle at top right, hsl(var(--warning) / 0.08), transparent 22%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.24);
+  }
+}
+
+@layer components {
+  .legal-shell {
+    @apply relative overflow-hidden;
+  }
+
+  .legal-shell::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-0 top-0 h-64;
+    background: linear-gradient(180deg, hsl(var(--surface) / 0.78), transparent);
+  }
+
+  .glass-panel {
+    @apply border border-border/70 bg-surface/75 backdrop-blur-xl;
+  }
+
+  .grid-pattern {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.26) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.26) 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+
+  .legal-prose {
+    --tw-prose-body: hsl(var(--foreground));
+    --tw-prose-headings: hsl(var(--foreground));
+    --tw-prose-links: hsl(var(--accent));
+    --tw-prose-bold: hsl(var(--foreground));
+    --tw-prose-quotes: hsl(var(--foreground));
+    --tw-prose-bullets: hsl(var(--accent));
+    --tw-prose-counters: hsl(var(--muted-foreground));
+    --tw-prose-hr: hsl(var(--border));
+    --tw-prose-code: hsl(var(--foreground));
+  }
+
+  .legal-prose :where(code):not(:where(pre code)) {
+    @apply rounded-md bg-surface-elevated px-1.5 py-0.5 text-[0.9em];
+  }
+
+  .legal-prose :where(pre) {
+    @apply overflow-x-auto rounded-3xl border border-border/70 bg-surface-elevated px-5 py-4;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
